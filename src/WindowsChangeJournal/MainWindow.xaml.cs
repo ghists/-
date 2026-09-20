@@ -171,10 +171,12 @@ public partial class MainWindow : Window
                 _refreshPending = false;
                 var items = await _repository.SearchAsync(BuildFilter());
                 if (_historyMode) return;
+                UpdateSourceFilterMenu(items.Select(item => item.OriginDisplay));
+                var visibleItems = SourceFilterService.Apply(items, GetSelectedSources(), 1000);
 
                 // Capture as late as possible: the user may select a row while the query is running.
                 var selected = EventsGrid.SelectedItem as FileEventRecord ?? _observedEvent;
-                ReplaceEvents(items, selected);
+                ReplaceEvents(visibleItems, selected);
                 await RefreshHealthAsync(true);
             }
             while (_refreshPending && !_historyMode);
@@ -259,7 +261,9 @@ public partial class MainWindow : Window
             EventTypes = GetSelectedEventTypes(),
             Directory = DirectoryBox.SelectedIndex > 0 ? DirectoryBox.SelectedItem?.ToString() ?? "" : "",
             FromUtc = from,
-            Limit = 1000
+            // Source names are inferred from paths after loading, so fetch a larger candidate
+            // set and apply the selected source checkboxes in memory.
+            Limit = 5000
         };
     }
 
@@ -297,6 +301,81 @@ public partial class MainWindow : Window
             _ => $"已选 {checkedItems.Count} 类事件 ▾"
         };
         Filter_Changed(sender, e);
+    }
+
+    private void SourceButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (SourceButton.ContextMenu is null) return;
+        SourceButton.ContextMenu.PlacementTarget = SourceButton;
+        SourceButton.ContextMenu.IsOpen = true;
+    }
+
+    private void SourceItem_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not MenuItem selected || selected.Tag is not string selectedTag) return;
+        var sourceItems = GetSourceMenuItems();
+        var allItem = SourceButton.ContextMenu.Items.OfType<MenuItem>()
+            .First(item => string.Equals(item.Tag as string, "All", StringComparison.Ordinal));
+        if (selectedTag == "All")
+        {
+            foreach (var item in sourceItems) item.IsChecked = selected.IsChecked;
+        }
+        else allItem.IsChecked = sourceItems.Count > 0 && sourceItems.All(item => item.IsChecked);
+
+        UpdateSourceButtonLabel(sourceItems);
+        Filter_Changed(sender, e);
+    }
+
+    private void UpdateSourceFilterMenu(IEnumerable<string> discoveredSources)
+    {
+        var existingItems = GetSourceMenuItems();
+        var knownSources = existingItems
+            .Select(item => item.Tag as string)
+            .Where(source => !string.IsNullOrWhiteSpace(source))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var allItem = SourceButton.ContextMenu.Items.OfType<MenuItem>()
+            .First(item => string.Equals(item.Tag as string, "All", StringComparison.Ordinal));
+
+        foreach (var source in discoveredSources.Where(source => !string.IsNullOrWhiteSpace(source)).Distinct(StringComparer.OrdinalIgnoreCase).Order(StringComparer.CurrentCulture))
+        {
+            if (!knownSources.Add(source)) continue;
+            var item = new MenuItem
+            {
+                Header = source,
+                Tag = source,
+                IsCheckable = true,
+                IsChecked = allItem.IsChecked,
+                StaysOpenOnClick = true
+            };
+            item.Click += SourceItem_Click;
+            SourceButton.ContextMenu.Items.Add(item);
+        }
+
+        var updatedItems = GetSourceMenuItems();
+        allItem.IsChecked = updatedItems.Count > 0 && updatedItems.All(item => item.IsChecked);
+        UpdateSourceButtonLabel(updatedItems);
+    }
+
+    private List<MenuItem> GetSourceMenuItems() => SourceButton.ContextMenu.Items
+        .OfType<MenuItem>()
+        .Where(item => item.Tag is string tag && tag != "All")
+        .ToList();
+
+    private List<string> GetSelectedSources() => GetSourceMenuItems()
+        .Where(item => item.IsChecked)
+        .Select(item => (string)item.Tag)
+        .ToList();
+
+    private void UpdateSourceButtonLabel(IReadOnlyCollection<MenuItem> sourceItems)
+    {
+        var checkedItems = sourceItems.Where(item => item.IsChecked).ToList();
+        SourceButton.Content = checkedItems.Count switch
+        {
+            0 => "未选择来源 ▾",
+            _ when checkedItems.Count == sourceItems.Count => "全部来源 ▾",
+            1 => $"{checkedItems[0].Header} ▾",
+            _ => $"已选 {checkedItems.Count} 个来源 ▾"
+        };
     }
 
     private async Task RefreshHealthAsync(bool reloadGaps)

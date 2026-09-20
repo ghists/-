@@ -75,7 +75,7 @@
           <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
           <Border Grid.Row="0" Background="White" BorderBrush="#E3E8EF" BorderThickness="1" CornerRadius="10" Padding="10" Margin="0,0,0,10">
             <Grid>
-              <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="150"/><ColumnDefinition Width="150"/><ColumnDefinition Width="220"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+              <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="150"/><ColumnDefinition Width="165"/><ColumnDefinition Width="150"/><ColumnDefinition Width="200"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
               <TextBox x:Name="SearchBox" Grid.Column="0" ToolTip="搜索文件名、旧路径或新路径" TextChanged="Filter_Changed"/>
               <Button x:Name="EventTypeButton" Grid.Column="1" Content="全部事件 ▾" Click="EventTypeButton_Click" HorizontalContentAlignment="Left">
                 <Button.ContextMenu>
@@ -90,11 +90,19 @@
                   </ContextMenu>
                 </Button.ContextMenu>
               </Button>
-              <ComboBox x:Name="TimeRangeBox" Grid.Column="2" SelectedIndex="0" SelectionChanged="Filter_Changed">
+              <Button x:Name="SourceButton" Grid.Column="2" Content="全部来源 ▾" Click="SourceButton_Click" HorizontalContentAlignment="Left">
+                <Button.ContextMenu>
+                  <ContextMenu MaxHeight="460">
+                    <MenuItem Header="全部来源" Tag="All" IsCheckable="True" IsChecked="True" StaysOpenOnClick="True" Click="SourceItem_Click"/>
+                    <Separator/>
+                  </ContextMenu>
+                </Button.ContextMenu>
+              </Button>
+              <ComboBox x:Name="TimeRangeBox" Grid.Column="3" SelectedIndex="0" SelectionChanged="Filter_Changed">
                 <ComboBoxItem Content="全部时间"/><ComboBoxItem Content="最近 10 分钟"/><ComboBoxItem Content="今天"/><ComboBoxItem Content="最近 7 天"/><ComboBoxItem Content="最近 30 天"/>
               </ComboBox>
-              <ComboBox x:Name="DirectoryBox" Grid.Column="3" SelectedIndex="0" SelectionChanged="Filter_Changed"/>
-              <Button Grid.Column="4" Content="导出当前结果" Click="Export_Click"/>
+              <ComboBox x:Name="DirectoryBox" Grid.Column="4" SelectedIndex="0" SelectionChanged="Filter_Changed"/>
+              <Button Grid.Column="5" Content="导出当前结果" Click="Export_Click"/>
             </Grid>
           </Border>
           <Grid Grid.Row="1">

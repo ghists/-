@@ -32,6 +32,15 @@ try
     Assert(new FileEventRecord { Path = tdmEvent }.OriginDisplay == "TDM（推定）", "Timeline source did not display the inferred program name.");
     var codexEvent = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Packages", "OpenAI.Codex_2p2nqsd0c76g0", "LocalCache", "cache.tmp");
     Assert(new FileEventRecord { Path = codexEvent }.OriginDisplay == "Codex（推定）", "Packaged application name inference failed.");
+    var sourceCandidates = new[]
+    {
+        new FileEventRecord { Path = codexEvent },
+        new FileEventRecord { Path = tdmEvent },
+        new FileEventRecord { Path = windowsPath }
+    };
+    var codexOnly = SourceFilterService.Apply(sourceCandidates, ["Codex（推定）"], 100);
+    Assert(codexOnly.Count == 1 && codexOnly[0].Path == codexEvent, "Multi-select source filtering returned an unexpected source.");
+    Assert(SourceFilterService.Apply(sourceCandidates, [], 100).Count == 0, "An empty source selection must return no events.");
     var programConfig = new AppConfig();
     ProgramAssociationService.SetMonitoringEnabled(programConfig, tdmRoot, false);
     Assert(!ProgramAssociationService.IsMonitoringEnabled(programConfig, tdmRoot), "Per-program monitoring switch did not disable the program root.");
