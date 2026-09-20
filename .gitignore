@@ -1,0 +1,10 @@
+bin/
+obj/
+.vs/
+*.user
+artifacts/
+*.db
+*.db-*
+.ui-smoke*/
+*.tmp
+*.bak

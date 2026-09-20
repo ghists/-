@@ -1,0 +1,210 @@
+<Window x:Class="WindowsChangeJournal.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="事件记录仪" Icon="Assets/app-icon.ico" Height="820" Width="1260" MinHeight="660" MinWidth="980"
+        Background="#F5F7FB" WindowStartupLocation="CenterScreen" Closing="Window_Closing">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <Border Grid.Row="0" Padding="24,18">
+      <Border.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+          <GradientStop Color="#111827" Offset="0"/>
+          <GradientStop Color="#20265D" Offset="0.6"/>
+          <GradientStop Color="#383AA0" Offset="1"/>
+        </LinearGradientBrush>
+      </Border.Background>
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+          <Button x:Name="PauseButton" Content="暂停记录" Style="{StaticResource PrimaryButton}" Click="Pause_Click"/>
+          <Button Content="暂停选项 ▾" Click="PauseOptions_Click">
+            <Button.ContextMenu>
+              <ContextMenu>
+                <MenuItem Header="暂停 15 分钟" Click="Pause15_Click"/>
+                <MenuItem Header="暂停 1 小时" Click="Pause60_Click"/>
+                <Separator/>
+                <MenuItem Header="恢复记录" Click="Resume_Click"/>
+              </ContextMenu>
+            </Button.ContextMenu>
+          </Button>
+          <Button Content="监控设置" Click="Manage_Click" Background="#FFFFFF"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+          <Border Width="52" Height="52" CornerRadius="15" Background="#FFFFFF" Margin="0,0,14,0" Padding="5">
+            <Image Source="Assets/app-logo.png" Stretch="Uniform"/>
+          </Border>
+          <StackPanel VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Text="事件记录仪" Foreground="White" FontSize="24" FontWeight="SemiBold"/>
+              <Border Margin="12,2,0,0" Padding="9,3" CornerRadius="10" Background="#335EEAD4">
+                <TextBlock x:Name="ScopeModeBadge" Text="全局记录" Foreground="#D5FFF8" FontSize="12" FontWeight="SemiBold"/>
+              </Border>
+            </StackPanel>
+            <TextBlock Text="在本机留下清晰、可查询的文件变化时间线" Foreground="#C5CCE0" Margin="0,4,0,0"/>
+          </StackPanel>
+        </StackPanel>
+      </DockPanel>
+    </Border>
+
+    <Grid Grid.Row="1" Margin="20,18,20,8">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Border x:Name="StatusCard" Grid.Column="0" Background="White" BorderBrush="#DCE3EE" BorderThickness="1" CornerRadius="14" Padding="17" Margin="0,0,12,0">
+        <StackPanel><TextBlock Text="记录状态" Foreground="#667085"/><TextBlock x:Name="StatusCardText" Text="正在初始化" FontSize="18" FontWeight="SemiBold" Foreground="#172033" Margin="0,6,0,0"/></StackPanel>
+      </Border>
+      <Border Grid.Column="1" Background="White" BorderBrush="#DCE3EE" BorderThickness="1" CornerRadius="14" Padding="17" Margin="0,0,12,0">
+        <StackPanel><TextBlock Text="监控范围" Foreground="#667085"/><TextBlock x:Name="RootsCardText" Text="0 个目录" FontSize="18" FontWeight="SemiBold" Foreground="#172033" Margin="0,6,0,0"/></StackPanel>
+      </Border>
+      <Border Grid.Column="2" Background="White" BorderBrush="#DCE3EE" BorderThickness="1" CornerRadius="14" Padding="17" Margin="0,0,12,0">
+        <StackPanel><TextBlock Text="已记录" Foreground="#667085"/><TextBlock x:Name="EventsCardText" Text="0 条事件" FontSize="18" FontWeight="SemiBold" Foreground="#172033" Margin="0,6,0,0"/></StackPanel>
+      </Border>
+      <Border Grid.Column="3" Background="White" BorderBrush="#DCE3EE" BorderThickness="1" CornerRadius="14" Padding="17">
+        <StackPanel><TextBlock Text="本地数据" Foreground="#667085"/><TextBlock x:Name="StorageCardText" Text="0 MB" FontSize="18" FontWeight="SemiBold" Foreground="#172033" Margin="0,6,0,0"/></StackPanel>
+      </Border>
+    </Grid>
+
+    <TabControl Grid.Row="2" Margin="20,8,20,8" Background="Transparent" BorderThickness="0">
+      <TabItem Header="时间线">
+        <Grid Margin="0,12,0,0">
+          <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+          <Border Grid.Row="0" Background="White" BorderBrush="#E3E8EF" BorderThickness="1" CornerRadius="10" Padding="10" Margin="0,0,0,10">
+            <Grid>
+              <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="150"/><ColumnDefinition Width="150"/><ColumnDefinition Width="220"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+              <TextBox x:Name="SearchBox" Grid.Column="0" ToolTip="搜索文件名、旧路径或新路径" TextChanged="Filter_Changed"/>
+              <Button x:Name="EventTypeButton" Grid.Column="1" Content="全部事件 ▾" Click="EventTypeButton_Click" HorizontalContentAlignment="Left">
+                <Button.ContextMenu>
+                  <ContextMenu>
+                    <MenuItem Header="全部事件" Tag="All" IsCheckable="True" IsChecked="True" StaysOpenOnClick="True" Click="EventTypeItem_Click"/>
+                    <Separator/>
+                    <MenuItem Header="创建" Tag="Created" IsCheckable="True" IsChecked="True" StaysOpenOnClick="True" Click="EventTypeItem_Click"/>
+                    <MenuItem Header="修改" Tag="Changed" IsCheckable="True" IsChecked="True" StaysOpenOnClick="True" Click="EventTypeItem_Click"/>
+                    <MenuItem Header="重命名" Tag="Renamed" IsCheckable="True" IsChecked="True" StaysOpenOnClick="True" Click="EventTypeItem_Click"/>
+                    <MenuItem Header="移动" Tag="Moved" IsCheckable="True" IsChecked="True" StaysOpenOnClick="True" Click="EventTypeItem_Click"/>
+                    <MenuItem Header="移除或删除" Tag="Deleted" IsCheckable="True" IsChecked="True" StaysOpenOnClick="True" Click="EventTypeItem_Click"/>
+                  </ContextMenu>
+                </Button.ContextMenu>
+              </Button>
+              <ComboBox x:Name="TimeRangeBox" Grid.Column="2" SelectedIndex="0" SelectionChanged="Filter_Changed">
+                <ComboBoxItem Content="全部时间"/><ComboBoxItem Content="最近 10 分钟"/><ComboBoxItem Content="今天"/><ComboBoxItem Content="最近 7 天"/><ComboBoxItem Content="最近 30 天"/>
+              </ComboBox>
+              <ComboBox x:Name="DirectoryBox" Grid.Column="3" SelectedIndex="0" SelectionChanged="Filter_Changed"/>
+              <Button Grid.Column="4" Content="导出当前结果" Click="Export_Click"/>
+            </Grid>
+          </Border>
+          <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="340"/></Grid.ColumnDefinitions>
+            <Border Grid.Column="0" Background="White" BorderBrush="#E3E8EF" BorderThickness="1" CornerRadius="10" Margin="0,0,10,0">
+              <DataGrid x:Name="EventsGrid" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                        BorderThickness="0" RowHeaderWidth="0" AlternatingRowBackground="#F8FAFC" SelectionChanged="EventsGrid_SelectionChanged" MouseDoubleClick="EventsGrid_MouseDoubleClick"
+                        EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
+                <DataGrid.Resources>
+                  <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#0B7FD4"/>
+                  <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#0B7FD4"/>
+                  <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="White"/>
+                  <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="White"/>
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                  <DataGridTextColumn Header="时间" Binding="{Binding LocalTime, StringFormat={}{0:MM-dd HH:mm:ss}}" Width="135"/>
+                  <DataGridTextColumn Header="事件" Binding="{Binding TypeDisplay}" Width="105"/>
+                  <DataGridTextColumn Header="文件" Binding="{Binding DisplayName}" Width="190"/>
+                  <DataGridTextColumn Header="路径变化" Binding="{Binding Detail}" Width="*"/>
+                  <DataGridTextColumn Header="来源" Binding="{Binding OriginDisplay}" Width="165"/>
+                  <DataGridTextColumn Header="可信度" Binding="{Binding ConfidenceDisplay}" Width="80"/>
+                </DataGrid.Columns>
+              </DataGrid>
+            </Border>
+            <Border Grid.Column="1" Background="White" BorderBrush="#E3E8EF" BorderThickness="1" CornerRadius="10" Padding="18">
+              <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                  <TextBlock Text="事件详情" FontSize="17" FontWeight="SemiBold" Foreground="#172033"/>
+                  <TextBlock x:Name="DetailHint" Text="选择一条记录查看文件去向和证据。" Foreground="#667085" Margin="0,12,0,0" TextWrapping="Wrap"/>
+                  <StackPanel x:Name="DetailPanel" Visibility="Collapsed">
+                    <TextBlock x:Name="DetailName" FontSize="20" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,16,0,0"/>
+                    <TextBlock x:Name="DetailType" Foreground="#2563EB" FontWeight="SemiBold" Margin="0,6,0,0"/>
+                    <TextBlock Text="当前位置" Foreground="#667085" Margin="0,18,0,4"/>
+                    <TextBlock x:Name="DetailCurrent" TextWrapping="Wrap"/>
+                    <TextBlock Text="路径记录" Foreground="#667085" Margin="0,16,0,4"/>
+                    <TextBlock x:Name="DetailPath" TextWrapping="Wrap"/>
+                    <TextBlock Text="观察依据" Foreground="#667085" Margin="0,16,0,4"/>
+                    <TextBlock x:Name="DetailEvidence" TextWrapping="Wrap"/>
+                    <Border x:Name="ProgramMonitorPanel" Margin="0,16,0,0" Padding="12" Background="#F5F8FF" BorderBrush="#D8E2F2" BorderThickness="1" CornerRadius="8">
+                      <StackPanel>
+                        <TextBlock Text="关联程序监控" FontWeight="SemiBold" Foreground="#172033"/>
+                        <TextBlock x:Name="AssociatedProgramName" Margin="0,7,0,0" FontSize="15" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                        <TextBlock x:Name="AssociatedProgramPath" Margin="0,3,0,0" Foreground="#667085" FontSize="12" TextWrapping="Wrap"/>
+                        <CheckBox x:Name="ProgramMonitoringBox" Content="记录此程序相关变化" Margin="0,10,0,0" Click="ProgramMonitoring_Click"/>
+                        <TextBlock x:Name="ProgramMonitoringNote" Margin="0,6,0,0" Foreground="#667085" FontSize="12" TextWrapping="Wrap"/>
+                      </StackPanel>
+                    </Border>
+                    <WrapPanel Margin="-4,16,0,0">
+                      <Button Content="在资源管理器中定位" Click="Locate_Click"/>
+                      <Button Content="查看此文件历史" Click="History_Click"/>
+                    </WrapPanel>
+                    <Button x:Name="BackToSearchButton" Content="返回筛选结果" Visibility="Collapsed" Click="BackToSearch_Click" HorizontalAlignment="Left"/>
+                  </StackPanel>
+                </StackPanel>
+              </ScrollViewer>
+            </Border>
+          </Grid>
+        </Grid>
+      </TabItem>
+
+      <TabItem Header="完整性与健康">
+        <Grid Margin="0,12,0,0">
+          <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+          <Border Grid.Row="0" Background="White" BorderBrush="#E3E8EF" BorderThickness="1" CornerRadius="10" Padding="18" Margin="0,0,0,10">
+            <Grid>
+              <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+              <StackPanel Grid.Column="0"><TextBlock Text="进程内存" Foreground="#667085"/><TextBlock x:Name="MemoryText" Text="--" FontSize="18" FontWeight="SemiBold" Margin="0,5,0,0"/></StackPanel>
+              <StackPanel Grid.Column="1"><TextBlock Text="待写事件" Foreground="#667085"/><TextBlock x:Name="QueueText" Text="0" FontSize="18" FontWeight="SemiBold" Margin="0,5,0,0"/></StackPanel>
+              <StackPanel Grid.Column="2"><TextBlock Text="可查询起点" Foreground="#667085"/><TextBlock x:Name="EarliestText" Text="暂无记录" FontSize="18" FontWeight="SemiBold" Margin="0,5,0,0"/></StackPanel>
+              <Button Grid.Column="3" Content="打开数据目录" Click="OpenData_Click"/>
+            </Grid>
+          </Border>
+          <Border Grid.Row="1" Background="White" BorderBrush="#E3E8EF" BorderThickness="1" CornerRadius="10" Padding="12">
+            <Grid>
+              <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+              <StackPanel Grid.Row="0" Margin="6,4,6,12"><TextBlock Text="记录缺口" FontSize="17" FontWeight="SemiBold"/><TextBlock Text="暂停、目录离线、权限失败或队列溢出都会在这里明确显示；程序不会把缺失历史伪装成完整记录。" Foreground="#667085" Margin="0,5,0,0"/></StackPanel>
+              <DataGrid x:Name="GapsGrid" Grid.Row="1" AutoGenerateColumns="False" IsReadOnly="True" BorderThickness="0" RowHeaderWidth="0" GridLinesVisibility="Horizontal">
+                <DataGrid.Columns>
+                  <DataGridTextColumn Header="开始" Binding="{Binding StartedUtc, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Width="170"/>
+                  <DataGridTextColumn Header="结束" Binding="{Binding EndedUtc, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Width="170"/>
+                  <DataGridTextColumn Header="原因" Binding="{Binding Reason}" Width="220"/>
+                  <DataGridTextColumn Header="范围" Binding="{Binding Scope}" Width="*"/>
+                  <DataGridTextColumn Header="状态" Binding="{Binding StateDisplay}" Width="110"/>
+                </DataGrid.Columns>
+              </DataGrid>
+            </Grid>
+          </Border>
+        </Grid>
+      </TabItem>
+
+      <TabItem Header="使用边界">
+        <Border Margin="0,12,0,0" Background="White" BorderBrush="#E3E8EF" BorderThickness="1" CornerRadius="10" Padding="30">
+          <StackPanel MaxWidth="850" HorizontalAlignment="Left">
+            <TextBlock Text="它记录什么" FontSize="20" FontWeight="SemiBold"/>
+            <TextBlock Text="默认全局监听所有可用固定磁盘中的文件和目录创建、修改、重命名、移除，以及能够关联的移动线索；也可在设置中切换为自定义目录。记录保存在本机 SQLite 数据库中。" TextWrapping="Wrap" FontSize="14" LineHeight="24" Margin="0,10,0,0"/>
+            <TextBlock Text="它不记录什么" FontSize="20" FontWeight="SemiBold" Margin="0,26,0,0"/>
+            <TextBlock Text="不采集键盘输入、剪贴板正文、屏幕截图、音频、聊天内容、网页正文或文件正文；不包含网络上传。前台应用只记录进程名称，不保存窗口标题。" TextWrapping="Wrap" FontSize="14" LineHeight="24" Margin="0,10,0,0"/>
+            <TextBlock Text="事件来源筛选" FontSize="20" FontWeight="SemiBold" Margin="0,26,0,0"/>
+            <TextBlock Text="默认排除 Windows 系统后台路径和 Microsoft Defender 防病毒隔离/保护历史记录相关路径；两项可在设置中独立开启。普通事件的“用户/软件”来源是按路径推定，不代表程序已经取得实际写入进程。" TextWrapping="Wrap" FontSize="14" LineHeight="24" Margin="0,10,0,0"/>
+            <TextBlock Text="可信度说明" FontSize="20" FontWeight="SemiBold" Margin="0,26,0,0"/>
+            <TextBlock Text="“已确认”表示系统提供了同一对象的直接证据；“可能”表示在短时间窗口内按身份、名称和大小形成候选关系。移出未监控范围只能表达为移除或删除，程序不会编造目标位置。暂停期间不会补录。" TextWrapping="Wrap" FontSize="14" LineHeight="24" Margin="0,10,0,0"/>
+          </StackPanel>
+        </Border>
+      </TabItem>
+    </TabControl>
+
+    <StatusBar Grid.Row="3" Background="White" BorderBrush="#E3E8EF" BorderThickness="0,1,0,0" Padding="12,4">
+      <StatusBarItem><TextBlock x:Name="StatusText" Text="正在初始化…"/></StatusBarItem>
+      <Separator/>
+      <StatusBarItem><TextBlock Text="事件只保存在本机" Foreground="#667085"/></StatusBarItem>
+    </StatusBar>
+  </Grid>
+</Window>
