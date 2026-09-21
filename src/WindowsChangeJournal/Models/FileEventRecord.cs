@@ -47,7 +47,8 @@ public sealed class FileEventRecord
             if (origin == EventOrigin.WindowsSystem) return "Windows 系统";
             if (origin == EventOrigin.MicrosoftDefender) return "Microsoft Defender";
             var association = ProgramAssociationService.TryIdentify(Path, OldPath);
-            return association is null ? "用户/软件（推定）" : $"{association.Name}（推定）";
+            if (association is not null) return $"{association.Name}（推定）";
+            return InteractionOriginService.GetDisplayName(ForegroundProcess);
         }
     }
 }

@@ -32,11 +32,16 @@ try
     Assert(new FileEventRecord { Path = tdmEvent }.OriginDisplay == "TDM（推定）", "Timeline source did not display the inferred program name.");
     var codexEvent = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Packages", "OpenAI.Codex_2p2nqsd0c76g0", "LocalCache", "cache.tmp");
     Assert(new FileEventRecord { Path = codexEvent }.OriginDisplay == "Codex（推定）", "Packaged application name inference failed.");
+    var ordinaryPath = Path.Combine(a, "ordinary.txt");
+    Assert(new FileEventRecord { Path = ordinaryPath, ForegroundProcess = "explorer" }.OriginDisplay == "人为操作（推定）", "Explorer-based human operation inference failed.");
+    Assert(new FileEventRecord { Path = ordinaryPath, ForegroundProcess = "background-agent" }.OriginDisplay == "软件操作（推定）", "Software operation inference failed.");
     var sourceCandidates = new[]
     {
         new FileEventRecord { Path = codexEvent },
         new FileEventRecord { Path = tdmEvent },
-        new FileEventRecord { Path = windowsPath }
+        new FileEventRecord { Path = windowsPath },
+        new FileEventRecord { Path = ordinaryPath, ForegroundProcess = "explorer" },
+        new FileEventRecord { Path = ordinaryPath, ForegroundProcess = "background-agent" }
     };
     var codexOnly = SourceFilterService.Apply(sourceCandidates, ["Codex（推定）"], 100);
     Assert(codexOnly.Count == 1 && codexOnly[0].Path == codexEvent, "Multi-select source filtering returned an unexpected source.");
