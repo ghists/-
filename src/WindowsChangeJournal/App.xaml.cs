@@ -20,7 +20,7 @@ public partial class App : System.Windows.Application
         _singleInstance = new Mutex(true, instanceName, out var created);
         if (!created)
         {
-            MessageBox.Show("事件记录仪已经在运行，请从任务栏托盘打开。", "事件记录仪", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show("时间记录仪已经在运行，请从任务栏托盘打开。", "时间记录仪", MessageBoxButton.OK, MessageBoxImage.Information);
             Shutdown();
             return;
         }
@@ -37,7 +37,7 @@ public partial class App : System.Windows.Application
 
     private void Application_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
     {
-        MessageBox.Show(e.Exception.Message, "事件记录仪", MessageBoxButton.OK, MessageBoxImage.Error);
+        MessageBox.Show(e.Exception.Message, "时间记录仪", MessageBoxButton.OK, MessageBoxImage.Error);
         e.Handled = true;
     }
 }

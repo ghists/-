@@ -142,7 +142,7 @@ public partial class SettingsWindow : Window
 
     private async void Import_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new Microsoft.Win32.OpenFileDialog { Filter = "事件记录仪设置 (*.json)|*.json|所有文件 (*.*)|*.*" };
+        var dialog = new Microsoft.Win32.OpenFileDialog { Filter = "时间记录仪设置 (*.json)|*.json|所有文件 (*.*)|*.*" };
         if (dialog.ShowDialog(this) != true) return;
         try
         {
@@ -154,7 +154,7 @@ public partial class SettingsWindow : Window
 
     private async void Export_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new Microsoft.Win32.SaveFileDialog { Filter = "事件记录仪设置 (*.json)|*.json", FileName = "事件记录仪设置.json", AddExtension = true };
+        var dialog = new Microsoft.Win32.SaveFileDialog { Filter = "时间记录仪设置 (*.json)|*.json", FileName = "时间记录仪设置.json", AddExtension = true };
         if (dialog.ShowDialog(this) != true) return;
         try { await File.WriteAllTextAsync(dialog.FileName, ConfigService.Serialize(BuildFromControls())); }
         catch (Exception ex) { MessageBox.Show(ex.Message, "无法导出", MessageBoxButton.OK, MessageBoxImage.Warning); }

@@ -1,7 +1,7 @@
 <Window x:Class="WindowsChangeJournal.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="事件记录仪" Icon="Assets/app-icon.ico" Height="820" Width="1260" MinHeight="660" MinWidth="980"
+        Title="时间记录仪" Icon="Assets/app-icon.ico" Height="820" Width="1260" MinHeight="660" MinWidth="980"
         Background="#F5F7FB" WindowStartupLocation="CenterScreen" Closing="Window_Closing">
   <Grid>
     <Grid.RowDefinitions>
@@ -40,7 +40,7 @@
           </Border>
           <StackPanel VerticalAlignment="Center">
             <StackPanel Orientation="Horizontal">
-              <TextBlock Text="事件记录仪" Foreground="White" FontSize="24" FontWeight="SemiBold"/>
+              <TextBlock Text="时间记录仪" Foreground="White" FontSize="24" FontWeight="SemiBold"/>
               <Border Margin="12,2,0,0" Padding="9,3" CornerRadius="10" Background="#335EEAD4">
                 <TextBlock x:Name="ScopeModeBadge" Text="全局记录" Foreground="#D5FFF8" FontSize="12" FontWeight="SemiBold"/>
               </Border>

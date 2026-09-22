@@ -102,7 +102,7 @@ public partial class MainWindow : Window
     private void SetupTrayIcon()
     {
         var menu = new Forms.ContextMenuStrip();
-        menu.Items.Add("打开事件记录仪", null, (_, _) => Dispatcher.Invoke(ShowFromTray));
+        menu.Items.Add("打开时间记录仪", null, (_, _) => Dispatcher.Invoke(ShowFromTray));
         menu.Items.Add("暂停 15 分钟", null, (_, _) => Dispatcher.Invoke(() => _monitor?.PauseManually(TimeSpan.FromMinutes(15))));
         menu.Items.Add("暂停 1 小时", null, (_, _) => Dispatcher.Invoke(() => _monitor?.PauseManually(TimeSpan.FromHours(1))));
         menu.Items.Add("恢复记录", null, (_, _) => Dispatcher.Invoke(() => _monitor?.ResumeManual()));
@@ -110,7 +110,7 @@ public partial class MainWindow : Window
         menu.Items.Add("退出", null, (_, _) => Dispatcher.Invoke(ExitApplication));
         _trayIcon = new Forms.NotifyIcon
         {
-            Text = "事件记录仪",
+            Text = "时间记录仪",
             Icon = System.Drawing.Icon.ExtractAssociatedIcon(Environment.ProcessPath ?? "") ?? System.Drawing.SystemIcons.Information,
             Visible = true,
             ContextMenuStrip = menu
@@ -406,7 +406,7 @@ public partial class MainWindow : Window
             QueueText.Text = _monitor.PendingEventCount.ToString("N0");
             using var process = Process.GetCurrentProcess();
             MemoryText.Text = $"{process.PrivateMemorySize64 / 1024d / 1024d:N1} MB";
-            if (_trayIcon is not null) _trayIcon.Text = _monitor.IsPaused ? "事件记录仪 - 已暂停" : "事件记录仪 - 记录中";
+            if (_trayIcon is not null) _trayIcon.Text = _monitor.IsPaused ? "时间记录仪 - 已暂停" : "时间记录仪 - 记录中";
             if (reloadGaps)
             {
                 var gaps = await _repository.GetRecentGapsAsync();
@@ -647,7 +647,7 @@ public partial class MainWindow : Window
         {
             e.Cancel = true;
             Hide();
-            _trayIcon?.ShowBalloonTip(1800, "事件记录仪仍在运行", "文件变化继续在后台记录，可从托盘重新打开。", Forms.ToolTipIcon.Info);
+            _trayIcon?.ShowBalloonTip(1800, "时间记录仪仍在运行", "文件变化继续在后台记录，可从托盘重新打开。", Forms.ToolTipIcon.Info);
             return;
         }
         DisposeServices();

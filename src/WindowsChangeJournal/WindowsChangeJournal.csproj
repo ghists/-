@@ -4,7 +4,7 @@
     <UseWPF>true</UseWPF><UseWindowsForms>true</UseWindowsForms>
     <Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>WindowsChangeJournal</AssemblyName>
-    <Product>事件记录仪</Product>
+    <Product>时间记录仪</Product>
     <Description>本地、隐私优先的 Windows 文件变化记录器</Description>
     <Version>1.0.0</Version>
     <ApplicationManifest>app.manifest</ApplicationManifest>
