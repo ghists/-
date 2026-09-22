@@ -68,6 +68,15 @@ dotnet publish src\WindowsChangeJournal\WindowsChangeJournal.csproj -c Release -
 dotnet publish src\WindowsChangeJournal\WindowsChangeJournal.csproj -c Release -r win-x64 --self-contained true --no-restore -o artifacts\win-x64-self-contained
 ```
 
+打包成发布 zip 之前，先把面向使用者的说明复制到发布目录根部（它会成为压缩包里的 `README.md`）：
+
+```powershell
+Copy-Item packaging\README.md artifacts\win-x64-self-contained\README.md -Force
+Compress-Archive -Path artifacts\win-x64-self-contained\* -DestinationPath artifacts\时间记录仪-1.0.0-win-x64.zip -Force
+```
+
+`packaging/README.md` 是随包分发的使用说明（安装、首次使用、数据位置、隐私边界、故障排查），与仓库根目录这份面向开发者的 README 分开维护。
+
 ## 数据位置
 
 ```text
